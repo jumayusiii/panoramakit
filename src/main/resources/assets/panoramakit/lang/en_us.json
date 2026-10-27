@@ -1,0 +1,41 @@
+{
+  "key.category.panoramakit.main": "Panorama Kit",
+  "key.panoramakit.capture": "Capture Panorama",
+  "key.panoramakit.menu": "Open Panorama Menu",
+
+  "panoramakit.screen.title": "Panorama Kit",
+  "panoramakit.screen.subtitle": "Pick the panorama behind the main menu",
+  "panoramakit.screen.vanilla": "Vanilla (default)",
+  "panoramakit.screen.vanilla.tooltip": "The default Minecraft panorama.\nHover it to preview, click it to switch back.",
+  "panoramakit.screen.entry.tooltip": "A panorama you captured.\nHover it to preview here, click it to use it behind the main menu.",
+  "panoramakit.screen.empty": "Nothing captured yet.",
+  "panoramakit.screen.empty.hint": "Press F6 in a world to capture one.",
+  "panoramakit.screen.preview.in_use": "In use: %s",
+  "panoramakit.screen.preview.previewing": "Previewing: %s",
+  "panoramakit.screen.hint.in_use": "Hover another entry to compare.",
+  "panoramakit.screen.hint.preview": "Click to use it, Esc to cancel.",
+
+  "panoramakit.button.open": "Panoramas",
+  "panoramakit.button.open.tooltip": "Choose the panorama behind the main menu.\nHover a panorama to preview it, click to keep it.\nPress F6 in a world to capture a new one.",
+  "panoramakit.button.refresh": "Refresh",
+  "panoramakit.button.refresh.tooltip": "Rescan screenshots/panoramas.\nUse this after adding or deleting panorama folders by hand.",
+  "panoramakit.button.open_folder": "Open Folder",
+  "panoramakit.button.open_folder.tooltip": "Open screenshots/panoramas in your file manager.\nA panorama is a folder of six faces, panorama_0.png to panorama_5.png.",
+  "panoramakit.button.done.tooltip": "Keep the highlighted panorama and go back.\nEsc does the same; hovering alone never saves anything.",
+
+  "panoramakit.message.applied": "Panorama Kit: now showing \"%s\" behind the main menu.",
+  "panoramakit.message.load_failed": "Panorama Kit: could not load \"%s\". See the log for details.",
+  "panoramakit.message.not_found": "Panorama Kit: no panorama named \"%s\" was found in screenshots/panoramas.",
+  "panoramakit.message.capture_failed": "Panorama Kit: could not create the panorama folder.",
+
+  "panoramakit.configuration.title": "Panorama Kit Settings",
+  "panoramakit.configuration.section.panoramakit.client.toml": "Panorama Kit Settings",
+  "panoramakit.configuration.section.panoramakit.client.toml.title": "Panorama Kit Settings",
+  "panoramakit.configuration.selectedPanorama": "Active Panorama",
+  "panoramakit.configuration.notifyOnCapture": "Capture Messages",
+  "panoramakit.configuration.autoSelectCaptured": "Auto-Use New Panorama",
+
+  "panoramakit.config.panorama": "Panorama",
+  "panoramakit.config.choose": "Choose...",
+  "panoramakit.config.choose.tooltip": "Open the picker to preview panoramas and choose one.\nThe same screen is on the title screen and on F7 while playing."
+}

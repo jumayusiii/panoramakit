@@ -1,0 +1,20 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'panoramakit'
+
+// One build target per supported Minecraft version. Every target compiles the same shared sources in
+// "../../src/main/java" and "../../src/main/resources"; only the Minecraft and NeoForge versions
+// differ. Use "./gradlew build" to build all of them, or "./gradlew :mc262:build" for a single one.
+include 'mc261', 'mc262', 'mc263'
+
+project(':mc261').projectDir = file('versions/26.1')
+project(':mc262').projectDir = file('versions/26.2')
+project(':mc263').projectDir = file('versions/26.3')

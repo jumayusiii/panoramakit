@@ -1,0 +1,141 @@
+plugins {
+    id 'net.neoforged.moddev' version '2.0.148' apply false
+    id 'idea'
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    // Define wrapper values here so as to not have to always do so when updating gradlew.properties.
+    // Switching this to Wrapper.DistributionType.ALL will download the full gradle sources that comes with
+    // documentation attached on cursor hover of gradle classes and methods. However, this comes with increased
+    // file size for Gradle. If you do switch to ALL, run the Gradle wrapper task twice afterwards.
+    // (Verify by checking gradle/wrapper/gradle-wrapper.properties to see if distributionUrl now points to `-all`)
+    distributionType = Wrapper.DistributionType.BIN
+}
+
+// Properties that are the same for every Minecraft version live in the root gradle.properties.
+def shared = new Properties()
+rootProject.file('gradle.properties').withInputStream { shared.load(it) }
+
+def modId = shared.getProperty('mod_id')
+def modName = shared.getProperty('mod_name')
+def modLicense = shared.getProperty('mod_license')
+def modAuthors = shared.getProperty('mod_authors')
+def modVersion = shared.getProperty('mod_version')
+
+// Each target project adds its own Minecraft/NeoForge versions through
+// versions/<minecraft_version>/gradle.properties.
+subprojects { target ->
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    apply plugin: 'net.neoforged.moddev'
+    apply plugin: 'idea'
+
+    def versions = new Properties()
+    project.file('gradle.properties').withInputStream { versions.load(it) }
+
+    def minecraftVersion = versions.getProperty('minecraft_version')
+    def minecraftVersionRange = versions.getProperty('minecraft_version_range')
+    def neoVersion = versions.getProperty('neo_version')
+
+    group = shared.getProperty('mod_group_id')
+    // "panoramakit-1.2.0+mc26.2" makes it obvious which Minecraft version a jar belongs to.
+    version = "${modVersion}+mc${minecraftVersion}"
+    base {
+        archivesName = modId
+    }
+
+    // Mojang ships Java 25 to end users from 26.1 on, so all targets use Java 25.
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+
+    // Almost all sources are shared between the Minecraft versions. Files that need a different
+    // implementation per version live in versions/<minecraft_version>/src/main/java and replace the
+    // shared file with the same relative path.
+    def sharedJava = rootProject.file('src/main/java')
+    def versionJava = project.file('src/main/java')
+    def hasVersionJava = versionJava.isDirectory()
+
+    sourceSets.main {
+        java.setSrcDirs(hasVersionJava ? [sharedJava, versionJava] : [sharedJava])
+        if (hasVersionJava) {
+            java.exclude { element ->
+                element.file.absolutePath.startsWith(sharedJava.absolutePath)
+                        && new File(versionJava, element.relativePath.pathString).isFile()
+            }
+        }
+        resources.setSrcDirs([rootProject.file('src/main/resources'), rootProject.file('src/generated/resources')])
+        resources.exclude '**/*.bbmodel'
+        resources.exclude 'src/generated/**/.cache'
+    }
+
+    neoForge {
+        version = neoVersion
+
+        runs {
+            client {
+                client()
+                // Separate run directories keep the versions from fighting over worlds and options.
+                gameDirectory = project.file('run')
+            }
+
+            configureEach {
+                systemProperty 'forge.logging.markers', 'REGISTRIES'
+                logLevel = org.slf4j.event.Level.DEBUG
+            }
+        }
+
+        mods {
+            "${modId}" {
+                sourceSet(sourceSets.main)
+            }
+        }
+    }
+
+    // Expands the mod metadata template with this target's versions.
+    def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+        def replaceProperties = [
+                minecraft_version      : minecraftVersion,
+                minecraft_version_range: minecraftVersionRange,
+                neo_version            : neoVersion,
+                mod_id                 : modId,
+                mod_name               : modName,
+                mod_license            : modLicense,
+                mod_authors            : modAuthors,
+                mod_version            : modVersion,
+        ]
+        inputs.properties replaceProperties
+        expand replaceProperties
+        from rootProject.file('src/main/templates')
+        into layout.buildDirectory.dir('generated/sources/modMetadata')
+    }
+    sourceSets.main.resources.srcDir generateModMetadata
+    neoForge.ideSyncTask generateModMetadata
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+
+    // Example configuration to allow publishing using the maven-publish plugin
+    publishing {
+        publications {
+            register('mavenJava', MavenPublication) {
+                from components.java
+            }
+        }
+        repositories {
+            maven {
+                url = project.uri(project.file('repo'))
+            }
+        }
+    }
+
+    idea {
+        module {
+            downloadSources = true
+            downloadJavadoc = true
+        }
+    }
+}
